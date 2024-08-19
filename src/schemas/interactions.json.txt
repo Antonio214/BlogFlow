@@ -1,0 +1,7 @@
+{
+    "user_id": "ObjectId",          // Reference to the user
+    "article_id": "ObjectId",       // Reference to the article
+    "interaction_type": "string",   // Type of interaction (view, like, share)
+    "timestamp": "ISODate"          // Time of interaction
+}
+  
