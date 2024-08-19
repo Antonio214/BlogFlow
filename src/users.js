@@ -25,11 +25,27 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Helper function to get articles for a specific user
+const getArticlesForUser = async (userId) => {
+  const result = await pool.query(
+    "SELECT id, title, content, tags, published_at FROM articles WHERE author_id = $1",
+    [userId]
+  );
+  return result.rows;
+};
+
 // Get all users
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM users");
-    res.json(result.rows);
+    const usersResult = await pool.query("SELECT * FROM users");
+    const users = usersResult.rows;
+
+    // For each user, fetch their articles in a separate query
+    for (let user of users) {
+      user.articles = await getArticlesForUser(user.id);
+    }
+
+    res.json(users);
   } catch (err) {
     console.error("Error fetching users:", err);
     res.status(500).send("Error fetching users");

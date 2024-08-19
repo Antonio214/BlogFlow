@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
+    "seedPostgrees": "node src/seeds/seedPostgrees.js",
+    "seedMongo": "node src/seeds/seedMongo.js",
     "dev": "nodemon src/index.js"
   },
   "keywords": [],

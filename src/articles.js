@@ -28,7 +28,11 @@ router.post("/", async (req, res) => {
 // Get all articles
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM articles");
+    const result = await pool.query(`
+    SELECT a.*, u.*
+    FROM articles a
+    LEFT JOIN users u ON a.author_id = u.id
+  `);
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching articles:", err);
@@ -40,9 +44,15 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query("SELECT * FROM articles WHERE id = $1", [
-      id,
-    ]);
+    const result = await pool.query(
+      `
+      SELECT a.*, u.*
+      FROM articles a
+      LEFT JOIN users u ON a.author_id = u.id
+      WHERE a.id = $1
+    `,
+      [id]
+    );
     if (result.rows.length === 0) {
       return res.status(404).send("Article not found");
     }
@@ -65,6 +75,9 @@ router.put("/:id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).send("Article not found");
     }
+    const db = getDb();
+    await db.collection("articles_updated").insertOne(result.rows[0]);
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Error updating article:", err);
